@@ -1,17 +1,24 @@
-# watch-run(1)
+**Important**
+This is a fork from `watch-run` that uses spawn instead of exec for the following reasons:
+
+- spawn does not have a buffer limit for stdout
+- spawn does not loses colored output when terminal allows it
+- Everything else is the same
+
+# watch-spawn(1)
 
 > Re-execute a given command everytime something changes in a specific directory. Build upon [gaze](https://github.com/shama/gaze).
 
 ## Installation
 
-	$ npm install -g watch-run
+	$ npm install -g watch-spawn
 
 ## Usage
 
 Via `--help`:
 
 ```
-Usage: watch-run <cmd>
+Usage: watch-spawn <cmd>
 
 Options:
 
@@ -24,12 +31,12 @@ Options:
 Examples:
 
   # watch dir and execute cmd
-  $ watch-run -p 'lib/**' cat package.json
+  $ watch-spawn -p 'lib/**' cat package.json
 ```
 
 ## Example
 
-	$ watch-run -p 'js/modules/**/*.js' browserify main.js -o public/build.js
+	$ watch-spawn -p 'js/modules/**/*.js' browserify main.js -o public/build.js
 
 ## License
 

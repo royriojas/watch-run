@@ -77,10 +77,27 @@ delay = program.delay || 0;
 
 function execute (event, path) {
   setTimeout(function () {
-    exec(command, function(err, stdout, stderr) {
-      if(err && program.stopOnErrors) throw err;
-      if(stderr) console.log(stderr);
-      if(stdout) console.log(stdout);
-    })
+    var commandArr = command.split(' ');
+    var cmd = commandArr.shift();
+
+    var p = spawn(cmd, commandArr, {stdio: 'inherit'});
+
+    p.on('error', function (err) {
+      if (err && program.stopOnErrors) {
+        throw err;
+      }
+    });
+
+    p.on('exit', function (exitCode) {
+      if(exitCode !== 0 && program.stopOnErrors) {
+        throw new Error('The program exited with code: ' + exitCode);
+      }
+      console.log('command finalized with code:', exitCode);
+    });
+//    exec(command, function(err, stdout, stderr) {
+//      if(err && program.stopOnErrors) throw err;
+//      if(stderr) console.log(stderr);
+//      if(stdout) console.log(stdout);
+//    })
   }, delay)
 }

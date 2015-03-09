@@ -1,9 +1,9 @@
 {
-  "name": "watch-run",
-  "version": "1.2.1",
-  "description": "watch specific files or directories and re-execute a given command",
+  "name": "watch-spawn",
+  "version": "1.0.0",
+  "description": "watch specific files or directories and re-execute a given command, using `child_process.spawn` instead of the original `child_process.exec` to have a more. Forked from `watch-run`",
   "bin": {
-    "watch-run": "bin/watch"
+    "watch-spawn": "bin/watch"
   },
   "dependencies": {
     "gaze": "~0.4.3",
@@ -17,10 +17,13 @@
     "run",
     "re-execute"
   ],
-  "author": "queckezz",
+  "author": {
+    "name": "Roy Riojas",
+    "url": "http://royriojas.com"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/queckezz/watch-run"
+    "url": "https://github.com/royriojas/watch-run"
   }
 }
