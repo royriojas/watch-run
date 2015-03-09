@@ -3,6 +3,8 @@ This is a fork from `watch-run` that uses `spawn` instead of `exec` internally f
 
 - spawn does not have a buffer limit for stdout
 - spawn does not loses colored output when terminal allows it
+- allow specify several patterns passing several times the `-p, --pattern` option all the options will be 
+  aggregated into a single array to pass to Gaze.
 
 Everything else is the same as the origina watch-run
 
