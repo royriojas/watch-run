@@ -1,9 +1,10 @@
 **Important**
-This is a fork from `watch-run` that uses spawn instead of exec for the following reasons:
+This is a fork from `watch-run` that uses `spawn` instead of `exec` internally for the following reasons:
 
 - spawn does not have a buffer limit for stdout
 - spawn does not loses colored output when terminal allows it
-- Everything else is the same
+
+Everything else is the same as the origina watch-run
 
 # watch-spawn(1)
 
