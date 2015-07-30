@@ -9,7 +9,7 @@ function collect(val, memo) {
   return memo;
 }
 
-var spawn = require('child_process').spawn;
+var spawnly = require('spawnly');
 var debug = require('debug')('watch');
 var program = require('commander');
 var join = require('path').join;
@@ -82,10 +82,8 @@ delay = program.delay || 0;
 
 function execute (event, path) {
   setTimeout(function () {
-    var commandArr = command.split(' ');
-    var cmd = commandArr.shift();
 
-    var p = spawn(cmd, commandArr, {stdio: 'inherit'});
+    var p = spawnly(command, {stdio: 'inherit'});
 
     p.on('error', function (err) {
       if (err && program.stopOnErrors) {
@@ -97,7 +95,7 @@ function execute (event, path) {
       if(exitCode !== 0 && program.stopOnErrors) {
         throw new Error('The program exited with code: ' + exitCode);
       }
-      console.log('command finalized with code:', exitCode);
+      console.log('command "' + command+  '" finalized with code:', exitCode);
     });
 //    exec(command, function(err, stdout, stderr) {
 //      if(err && program.stopOnErrors) throw err;
