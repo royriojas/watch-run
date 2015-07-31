@@ -4,74 +4,175 @@
  * Module dependencies.
  */
 
-function collect(val, memo) {
-  memo.push(val);
+function collect( val, memo ) {
+  memo.push( val );
   return memo;
 }
 
-var spawnly = require('spawnly');
-var debug = require('debug')('watch');
-var program = require('commander');
-var join = require('path').join;
-var Gaze = require('gaze').Gaze;
+var spawnly = require( 'spawnly' );
+var debug = require( 'debug' )( 'watch' );
+var program = require( 'commander' );
+var join = require( 'path' ).join;
+var Gaze = require( 'gaze' ).Gaze;
 var delay = 0;
+
+var list = function ( val ) {
+  val = val || '';
+  return val.split( ',' ).reduce( function ( seq, key ) {
+    key = key.trim();
+    if ( key ) {
+      if ( key.match( /\badded\b|\bchanged\b|deleted\b|\brenamed\b/ ) ) {
+        seq[ key ] = true;
+      } else {
+        console.log( '>> invalid event: ', key );
+      }
+
+    }
+    return seq;
+  }, { } );
+};
 
 /**
  * Options.
  */
 
 program
-  .usage('<cmd>')
-  .option('-p, --pattern [pattern]', 'glob pattern. More info: https://github.com/isaacs/minimatch', collect, [])
-  .option('-i, --initial', 'run <cmd> on initial startup', false)
-  .option('-d, --delay <n>', 'delay execution of <cmd> for a number of milliseconds', parseInt)
-  .option('-s, --stop-on-error', 'stop watching and exit when errors occur in <cmd>', false)
+  .usage( '<cmd>' )
+  .option( '-p, --pattern [pattern]', 'glob pattern. More info: https://github.com/isaacs/minimatch', collect, [] )
+  .option( '-i, --initial', 'run <cmd> on initial startup', false )
+  .option( '-d, --delay <n>', 'delay execution of <cmd> for a number of milliseconds', parseInt )
+  .option( '-s, --stop-on-error', 'stop watching and exit when errors occur in <cmd>', false )
+  .option( '-f, --fire-on-events <events>', 'fire only on the events provided: `added`, `changed` or `deleted`', list )
+  .option( '-q, --quiet', 'be as quiet as possible', false )
+  .option( '-k, --skip-if-running', 'skip if currently executing the <cmd>' )
 
 /**
  * Examples.
  */
 
-program.on('--help', function(){
+program.on( '--help', function () {
   console.log()
-  console.log('  Examples:')
+  console.log( '  Examples:' )
   console.log()
-  console.log('    # watch dir and execute cmd')
-  console.log('    $ watch-run -p \'lib/**\' cat package.json')
+  console.log( '    # watch dir and execute cmd' )
+  console.log( '    $ watch-run -p \'lib/**\' cat package.json' )
   console.log()
-})
+} )
 
 /**
  * Parse argv.
  */
 
-program.parse(process.argv)
+program.parse( process.argv )
 
+var verbose = !program.quiet;
 /**
  * Get command.
  */
 
-var command = program.args.join(' ')
+var command = program.args.join( ' ' )
 
 /**
  * Watch.
  */
 
-var watch = new Gaze(program.pattern)
-watch.on('all', execute)
+if ( !program.pattern || program.pattern.length === 0 ) {
+  console.log( 'Please provide a --pattern to watch\n' );
+  program.help();
+}
+
+var watch;
+try {
+  watch = new Gaze( program.pattern )
+}
+catch(ex) {
+  console.error('>> error', ex);
+  console.error('>> pattern', program.pattern);
+  process.exit(1);
+}
+
+watch.watched(function (err, files) {
+  if (err) {
+    console.error('>> ',err)
+  }
+  console.log('>> watching paths: ', files);
+});
+
+watch.on('error', function(error) {
+  console.error('>> error', error);
+});
+
+watch.on( 'all', execute )
+
+if ( verbose ) {
+  console.log( 'watch-spawn started!' );
+}
 
 /**
  * Run initial execution if required.
  */
 
-if (program.initial) {
-  execute()
+if ( program.initial ) {
+  if ( verbose ) {
+    console.log( '>> running initially: ' + command );
+  }
+  doExecute();
 }
+
+var fireOnEvents = program.fireOnEvents || { };
+var hasFilterEvents = Object.keys( fireOnEvents ).length > 0;
+
 
 /**
  * Set requested delay after initial execution.
  */
 
 delay = program.delay || 0;
+
+var running = false;
+var skipIfRunning = program.skipIfRunning !== false;
+
+function doExecute() {
+
+  if ( running && skipIfRunning ) {
+    if ( verbose ) {
+      console.log( '>> skip execution of command. Previous command still running...' );
+      return;
+    }
+  }
+  running = true;
+
+  console.log( '>> running command...', command );
+
+  var p = spawnly( command, { stdio: 'inherit' } );
+
+  p.on( 'error', function ( err ) {
+    running = false;
+    if ( err && program.stopOnErrors ) {
+      throw err;
+    }
+  } );
+
+  p.on( 'exit', function ( exitCode ) {
+    running = false;
+    if ( exitCode !== 0 && program.stopOnErrors ) {
+      throw new Error( 'The program exited with code: ' + exitCode );
+    }
+    //if (verbose)  {
+    console.log( '>> command "' + command + '" finalized with code:', exitCode );
+  //}
+  } );
+
+}
+
+if ( verbose ) {
+  if ( hasFilterEvents ) {
+    console.log( '>> interested only in: ' + Object.keys( fireOnEvents ).join( ', ' ) + ' event(s)' );
+  }
+  console.log( '>> patterns to watch:', program.pattern.join( ', ' ) );
+}
+
+
 
 /**
  * Execute command when file in dir changes.
@@ -80,27 +181,19 @@ delay = program.delay || 0;
  * @param {String} path
  */
 
-function execute (event, path) {
-  setTimeout(function () {
+function execute( event, path ) {
+  if ( hasFilterEvents && !fireOnEvents[ event ] ) {
+    if ( verbose ) {
+      console.log( '>> not interested on event: ' + event + ', path: ' + path + '. Skipping it...\n' );
+    }
+    return;
+  }
 
-    var p = spawnly(command, {stdio: 'inherit'});
+  if ( verbose ) {
+    console.log( '>> received event: ' + event + ', path: ' + path );
+  }
 
-    p.on('error', function (err) {
-      if (err && program.stopOnErrors) {
-        throw err;
-      }
-    });
-
-    p.on('exit', function (exitCode) {
-      if(exitCode !== 0 && program.stopOnErrors) {
-        throw new Error('The program exited with code: ' + exitCode);
-      }
-      console.log('command "' + command+  '" finalized with code:', exitCode);
-    });
-//    exec(command, function(err, stdout, stderr) {
-//      if(err && program.stopOnErrors) throw err;
-//      if(stderr) console.log(stderr);
-//      if(stdout) console.log(stdout);
-//    })
-  }, delay)
+  setTimeout( function () {
+    doExecute( event, path );
+  }, delay );
 }
