@@ -1,6 +1,6 @@
 {
   "name": "watch-spawn",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Watch specific files or directories and re-execute a given command, using `child_process.spawn` instead of the original `child_process.exec` to have a bit more of control. Forked from `watch-run` by `queckezz`",
   "bin": {
     "watch-spawn": "bin/watch"
