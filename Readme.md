@@ -5,9 +5,9 @@ This is a fork from `watch-run` that uses `spawn` instead of `exec` internally f
 - spawn does not loses colored output when terminal allows it
 - add option to specify several patterns passing several times the `-p, --pattern` option all the options will be
   aggregated into a single array to pass to Gaze.
-- add option to react only on certain events: `added`, `changed` or `deleted`.
+- add option to react only on certain events: `added`, `changed`, `deleted` or `renamed`.
 - add verbose info, use `-q, --quiet`  to reduce the noise. (the info about when the command is run and when it finish will always be printed regardless the value of `--quiet`)
-- add option to skip executing the command if the command is already running.
+- add option to skip executing the command if the command is already running `-k, --skip-if-running`.
 
 Everything else is the same as the origina watch-run
 

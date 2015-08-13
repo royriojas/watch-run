@@ -9,7 +9,7 @@
     "commander": "^2.6.0",
     "debug": "~0.7.4",
     "gaze": "^0.5.1",
-    "spawnly": "^0.1.0"
+    "spawnly": "^1.0.0"
   },
   "keywords": [
     "watch",
