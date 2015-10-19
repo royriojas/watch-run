@@ -24,7 +24,7 @@ Everything else is the same as the origina watch-run
 Via `--help`:
 
 ```
-Usage: watch <cmd>
+Usage: watch-spawn <cmd>
 
 Options:
 
@@ -33,7 +33,7 @@ Options:
   -i, --initial                  run <cmd> on initial startup
   -d, --delay <n>                delay execution of <cmd> for a number of milliseconds
   -s, --stop-on-error            stop watching and exit when errors occur in <cmd>
-  -f, --fire-on-events <events>  fire only on the events provided: added, changed or deleted
+  -f, --fire-on-events <events>  fire only on the events provided: `added`, `changed` or `deleted`
   -q, --quiet                    be as quiet as possible
   -k, --skip-if-running          skip if currently executing the <cmd>
 
@@ -41,7 +41,7 @@ Options:
 Examples:
 
   # watch dir and execute cmd
-  $ watch-run -p 'lib/**' cat package.json
+  $ watch-spawn -p 'lib/**' cat package.json
 
 ```
 

@@ -55,7 +55,7 @@ program.on( '--help', function () {
   console.log( '  Examples:' )
   console.log()
   console.log( '    # watch dir and execute cmd' )
-  console.log( '    $ watch-run -p \'lib/**\' cat package.json' )
+  console.log( '    $ watch-spawn -p \'lib/**\' cat package.json' )
   console.log()
 } )
 
