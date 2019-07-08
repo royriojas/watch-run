@@ -9,7 +9,8 @@
     "commander": "^2.6.0",
     "debug": "~0.7.4",
     "gaze": "^1.1.0",
-    "spawnly": "^1.0.0"
+    "spawnly": "^1.0.0",
+    "snyk": "^1.192.3"
   },
   "keywords": [
     "watch",
@@ -27,5 +28,10 @@
     "type": "git",
     "url": "https://github.com/royriojas/watch-run"
   },
-  "devDependencies": {}
+  "devDependencies": {},
+  "scripts": {
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
+  "snyk": true
 }
