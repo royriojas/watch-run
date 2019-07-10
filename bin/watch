@@ -10,7 +10,6 @@ function collect( val, memo ) {
 }
 
 var spawnly = require( 'spawnly' );
-var debug = require( 'debug' )( 'watch' );
 var program = require( 'commander' );
 var join = require( 'path' ).join;
 var Gaze = require( 'gaze' ).Gaze;
